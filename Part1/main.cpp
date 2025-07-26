@@ -4,6 +4,10 @@
 int main() {
     GutenbergHashTable table;
 
+    /**
+     * The following code was used to test the hash table
+     * On my machine it worked as expected when using a hash table size of 5
+
     std::cout << "-------------------------------------------------------------------" << std::endl;
     std::cout << "Testing insertion of two strings with the same hash" << std::endl << std::endl;
     table.insert("hello", 1);
@@ -36,6 +40,13 @@ int main() {
     table.insert("hello", 21);
     table.print();
     std::cout << "remove(\"world\"), expected: 42, actual: " << table.remove("world") << std::endl;
+    table.print();
+    std::cout << "-------------------------------------------------------------------" << std::endl;
+
+    */
+
+    std::cout << "Hydrating with gutenberg data..." << std::endl << std::endl;
+    table.hydrate();
     table.print();
 
     return 0;

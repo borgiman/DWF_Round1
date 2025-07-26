@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-static constexpr std::size_t SIZE = 5;
+static constexpr std::size_t SIZE = 9479;
 
 struct Entry {
     std::string key;
