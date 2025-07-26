@@ -1,6 +1,5 @@
 ﻿#include "GutenbergHashTable.h"
 #include <iostream>
-#include <stdexcept>
 
 void GutenbergHashTable::insert(const std::string& key, const int value) {
     size_t index = hasher(key) % SIZE;
@@ -10,7 +9,7 @@ void GutenbergHashTable::insert(const std::string& key, const int value) {
         size_t probeIndex = (index + i) % SIZE;
         Entry& entry = entries[probeIndex];
 
-        // update alive and existing entry
+        // update alive and existing entry with same key
         if (entry.occupied && !entry.deleted && entry.key == key) {
             entry.value = value;
             lastModified = &entry;
@@ -37,7 +36,26 @@ void GutenbergHashTable::insert(const std::string& key, const int value) {
 }
 
 int GutenbergHashTable::remove(const std::string& key) {
-    throw std::runtime_error("Not implemented");
+    size_t index = hasher(key) % SIZE;
+
+    // searching for entry from index up to (index + SIZE - 1)
+    for (auto i = 0; i < SIZE; i++) {
+        size_t probeIndex = (index + i) % SIZE;
+        Entry& entry = entries[probeIndex];
+
+        // found alive and existing entry with same key
+        if (entry.occupied && !entry.deleted && entry.key == key) {
+            entry.deleted = true;
+            return entry.value;
+        }
+
+        // reached first free and non deleted entry, should have found the key at this point
+        if (!entry.occupied && !entry.deleted) {
+            break;
+        }
+    }
+
+    throw std::out_of_range("Key not found");
 }
 
 int GutenbergHashTable::get(const std::string& key) {
@@ -75,7 +93,7 @@ std::pair<std::string&, int> GutenbergHashTable::get_last() {
     return {lastModified->key, lastModified->value};
 }
 
-void GutenbergHashTable::print() {
+void GutenbergHashTable::print() const {
     for (int i = 0; i < SIZE; i++) {
         std::cout << "[" << i << "] -> (key: " << entries[i].key << ", value: " << entries[i].value << ", occupied: " << entries[i].occupied << ", deleted: " << entries[i].deleted << ")" << std::endl;
     }
