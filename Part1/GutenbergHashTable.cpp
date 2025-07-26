@@ -4,7 +4,6 @@
 
 void GutenbergHashTable::insert(const std::string& key, const int value) {
     size_t index = hasher(key) % SIZE;
-    std::cout << "Initial index for " << key << " is " << index << std::endl;
 
     // linear probing for index up to (index + SIZE - 1)
     for (auto i = 0; i < SIZE; i++) {
@@ -45,12 +44,18 @@ int GutenbergHashTable::get(const std::string& key) {
     throw std::runtime_error("Not implemented");
 }
 
-std::pair<std::string&, int> GutenbergHashTable::get_last() {
-    throw std::runtime_error("Not implemented");
+std::pair<std::string&, int> GutenbergHashTable::get_first() {
+    if (firstModified == nullptr) {
+        throw std::overflow_error("HashTable was not modified");
+    }
+    return {firstModified->key, firstModified->value};
 }
 
-std::pair<std::string&, int> GutenbergHashTable::get_first() {
-    throw std::runtime_error("Not implemented");
+std::pair<std::string&, int> GutenbergHashTable::get_last() {
+    if (lastModified == nullptr) {
+        throw std::overflow_error("HashTable was not modified");
+    }
+    return {lastModified->key, lastModified->value};
 }
 
 void GutenbergHashTable::print() {
