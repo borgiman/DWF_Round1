@@ -41,7 +41,24 @@ int GutenbergHashTable::remove(const std::string& key) {
 }
 
 int GutenbergHashTable::get(const std::string& key) {
-    throw std::runtime_error("Not implemented");
+    size_t index = hasher(key) % SIZE;
+
+    // searching for entry from index up to (index + SIZE - 1)
+    for (auto i = 0; i < SIZE; i++) {
+        size_t probeIndex = (index + i) % SIZE;
+        Entry& entry = entries[probeIndex];
+
+        if (entry.occupied && !entry.deleted && entry.key == key) {
+            return entry.value;
+        }
+
+        // reached first free and non deleted entry, should have found the key at this point
+        if (!entry.occupied && !entry.deleted) {
+            break;
+        }
+    }
+
+    throw std::out_of_range("Key not found");
 }
 
 std::pair<std::string&, int> GutenbergHashTable::get_first() {
