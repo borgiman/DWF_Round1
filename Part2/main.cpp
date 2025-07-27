@@ -51,6 +51,8 @@ struct Trade {
 };
 
 // since the binance api is versioned, i am strict about the format of the response and make all the assumptions possible
+// there might be more memory efficient ways, just like there is span in c# to avoid substrings, see disclaimer
+// assuming the length of a trade varies not dramatically, the parsing is O(n)
 std::vector<Trade> parseBinanceResponse(const std::string& response) {
     // if the response only contains "[]" or less, it is considered empty
     if (response.length() <= 2) {
