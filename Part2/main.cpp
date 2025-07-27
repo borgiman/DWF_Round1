@@ -1,8 +1,10 @@
 #include <curl/curl.h>
+#include <chrono>
 #include <iostream>
 #include <vector>
 
-constexpr bool USE_REAL_API = false; // Binance has limits and I don't want to go over them while testing
+constexpr bool USE_REAL_API = true; // Binance has limits and I don't want to go over them while testing
+constexpr int NUMBER_OF_TRADES_TO_LOAD = 5; // when using the real api
 
 size_t WriteCallback(void* ptr, size_t size, size_t nmemb, std::string* userdata) {
     userdata->append(static_cast<char*>(ptr), size * nmemb);
@@ -18,7 +20,8 @@ std::string getBinanceAPIResponse() {
     std::string response;
 
     if (CURL* curl = curl_easy_init()) {
-        curl_easy_setopt(curl, CURLOPT_URL, "https://fapi.binance.com/fapi/v1/aggTrades?symbol=BTCUSDT&limit=5");
+        auto url = "https://fapi.binance.com/fapi/v1/aggTrades?symbol=BTCUSDT&limit=" + std::to_string(NUMBER_OF_TRADES_TO_LOAD);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
         CURLcode responseCode = curl_easy_perform(curl);
@@ -60,6 +63,8 @@ std::vector<Trade> parseBinanceResponse(const std::string& response) {
     while (true) {
         Trade trade {};
 
+        auto startTime = std::chrono::high_resolution_clock::now();
+
         // parse "a" property
         size_t propertyValueEndsAtIndex = response.find(',', position);
         trade.a = std::stoull(response.substr(position, propertyValueEndsAtIndex - position));
@@ -93,6 +98,10 @@ std::vector<Trade> parseBinanceResponse(const std::string& response) {
         position = propertyValueEndsAtIndex + 5;
         trade.m = response[position] == 't';
         propertyValueEndsAtIndex = position + (trade.m ? 4 : 5);
+
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> duration = endTime - startTime;
+        std::cout << "Parsed trade " << trade.a << " in " << duration.count() << "ms" << std::endl;
 
         trades.push_back(trade);
 
